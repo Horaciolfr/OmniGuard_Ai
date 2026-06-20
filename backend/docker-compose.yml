@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  omniguard_backend:
+    build: .
+    container_name: omniguard_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+    # Si quieres que el contenedor use tu GPU NVIDIA, descomenta las líneas de abajo
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

@@ -1,0 +1,13 @@
+names:
+- '-'
+- PEX5 - v4 2023-12-05 8-35pm
+nc: 2
+roboflow:
+  license: CC BY 4.0
+  project: sunglasses-vw1em
+  url: https://universe.roboflow.com/lostfound-jy7qx/sunglasses-vw1em/dataset/1
+  version: 1
+  workspace: lostfound-jy7qx
+test: ../test/images
+train: ../train/images
+val: ../valid/images

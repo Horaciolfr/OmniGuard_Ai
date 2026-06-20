@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniGuard Vision | Análisis Local</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-200 min-h-screen p-8 font-mono">
+
+    <div class="max-w-3xl mx-auto">
+        <header class="mb-8 border-b border-gray-800 pb-4">
+            <h1 class="text-3xl font-bold text-blue-500 tracking-widest">OMNIGUARD VISION</h1>
+            <p class="text-gray-500 text-sm mt-1">MOTOR NEURONAL DE ANÁLISIS DE VIDEO LOCAL</p>
+        </header>
+
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-gray-400">Inyección de Archivo</h2>
+            
+            <form id="video-upload-form" class="space-y-4">
+                <div class="flex items-center justify-center w-full">
+                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer bg-gray-800 hover:bg-gray-700 transition">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <p class="mb-2 text-sm text-gray-400"><span class="font-semibold">Haga clic para subir</span> un video de prueba</p>
+                            <p class="text-xs text-gray-500">MP4, AVI, MOV</p>
+                        </div>
+                        <input id="dropzone-file" type="file" accept="video/*" class="hidden" required />
+                    </label>
+                </div>
+                <button type="submit" id="btn-analizar" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition">
+                    Iniciar Reconocimiento por IA
+                </button>
+            </form>
+        </div>
+
+        <div id="panel-resultados" class="hidden bg-black border border-gray-800 rounded-lg p-6 relative overflow-hidden">
+            <div id="scan-line" class="absolute top-0 left-0 w-full h-1 bg-blue-500 hidden"></div>
+            
+            <h2 class="text-xl font-bold mb-6 text-gray-400">Reporte Táctico</h2>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-gray-900 p-4 rounded border-l-4" id="borde-riesgo">
+                    <span class="text-gray-500 block text-sm">NIVEL DE RIESGO:</span>
+                    <span id="res-riesgo" class="text-3xl font-bold"></span>
+                </div>
+                <div class="bg-gray-900 p-4 rounded border border-gray-800">
+                    <span class="text-gray-500 block text-sm">ACCIÓN RECOMENDADA:</span>
+                    <span id="res-accion" class="font-bold text-white uppercase block mt-1"></span>
+                </div>
+            </div>
+
+            <div class="bg-gray-900 p-4 rounded border border-gray-800 mb-4">
+                <span class="text-gray-500 block mb-2 text-sm">OBJETOS CLASIFICADOS:</span>
+                <div id="res-objetos" class="flex flex-wrap gap-2 text-sm font-bold text-blue-400 uppercase"></div>
+            </div>
+
+            <div class="bg-gray-900 p-4 rounded border border-gray-800">
+                <span class="text-gray-500 block mb-2 text-sm">ALERTAS ACTIVAS:</span>
+                <ul id="res-alertas" class="list-disc pl-5 space-y-1 text-red-400 text-sm font-bold"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('video-upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('dropzone-file');
+            const file = fileInput.files[0];
+            const btn = document.getElementById('btn-analizar');
+            const resultPanel = document.getElementById('panel-resultados');
+            const scanLine = document.getElementById('scan-line');
+
+            if (!file) return;
+
+            // UI Feedback (Procesando)
+            btn.disabled = true;
+            btn.innerText = "Procesando video fotograma a fotograma (IA activa)...";
+            btn.classList.replace('bg-blue-600', 'bg-gray-600');
+            resultPanel.classList.remove('hidden');
+            scanLine.classList.remove('hidden');
+            scanLine.classList.add('animate-[bounce_1s_infinite]');
+
+            const formData = new FormData();
+            formData.append('video', file);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/analizar-video-local', {
+                    method: 'POST',
+                    headers: { 'X-API-Key': 'og_live_9f8a7b6c5d4e3f2a1' },
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                // Actualizar interfaz
+                const riesgoEl = document.getElementById('res-riesgo');
+                const bordeRiesgo = document.getElementById('borde-riesgo');
+                riesgoEl.innerText = `${data.riesgo_score}/100 [${data.nivel_riesgo}]`;
+                
+                bordeRiesgo.className = `bg-gray-900 p-4 rounded border-l-4 ${data.riesgo_score >= 80 ? 'border-red-500 text-red-500' : data.riesgo_score >= 40 ? 'border-yellow-500 text-yellow-500' : 'border-green-500 text-green-500'}`;
+                riesgoEl.className = 'text-3xl font-bold';
+
+                document.getElementById('res-accion').innerText = data.accion_tactica;
+                
+                const objetosContainer = document.getElementById('res-objetos');
+                objetosContainer.innerHTML = data.objetos_identificados.length > 0 
+                    ? data.objetos_identificados.map(obj => `<span class="bg-gray-800 px-2 py-1 rounded border border-gray-700">${obj}</span>`).join('')
+                    : '<span class="text-gray-500">Ninguno</span>';
+
+                const alertasEl = document.getElementById('res-alertas');
+                alertasEl.innerHTML = data.alertas_activas.length > 0 
+                    ? data.alertas_activas.map(a => `<li>${a}</li>`).join('')
+                    : '<li class="text-green-500">Área despejada. Ninguna amenaza detectada.</li>';
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Ocurrió un error al procesar el video. Revise la consola del servidor Python.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Iniciar Reconocimiento por IA";
+                btn.classList.replace('bg-gray-600', 'bg-blue-600');
+                scanLine.classList.add('hidden');
+                scanLine.classList.remove('animate-[bounce_1s_infinite]');
+            }
+        });
+    </script>
+</body>
+</html>

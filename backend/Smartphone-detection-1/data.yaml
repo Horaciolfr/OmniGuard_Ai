@@ -1,0 +1,12 @@
+names:
+- Smartphone
+nc: 1
+roboflow:
+  license: CC BY 4.0
+  project: smartphone-detection-c7e6g
+  url: https://universe.roboflow.com/gruppefuenf/smartphone-detection-c7e6g/dataset/1
+  version: 1
+  workspace: gruppefuenf
+test: ../test/images
+train: ../train/images
+val: ../valid/images

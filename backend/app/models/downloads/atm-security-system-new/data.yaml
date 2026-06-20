@@ -1,0 +1,15 @@
+names:
+- Gun_Holder
+- Helmet_Wearer
+- Jacket_Wearer
+- Person
+nc: 4
+roboflow:
+  license: CC BY 4.0
+  project: atm-security-system-new
+  url: https://universe.roboflow.com/atmsecurity-uhtjj/atm-security-system-new/dataset/7
+  version: 7
+  workspace: atmsecurity-uhtjj
+test: ../test/images
+train: ../train/images
+val: ../valid/images

@@ -1,0 +1,13 @@
+names:
+- human
+- mobile_phonerotation
+nc: 2
+roboflow:
+  license: MIT
+  project: object-detection-mo4fq
+  url: https://universe.roboflow.com/ai-izzuf/object-detection-mo4fq/dataset/1
+  version: 1
+  workspace: ai-izzuf
+test: ../test/images
+train: ../train/images
+val: ../valid/images

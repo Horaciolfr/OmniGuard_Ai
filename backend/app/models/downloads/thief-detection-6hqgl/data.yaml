@@ -1,0 +1,13 @@
+names:
+- person-with-mask
+- person-without-mask
+nc: 2
+roboflow:
+  license: CC BY 4.0
+  project: thief-detection-6hqgl
+  url: https://universe.roboflow.com/face-mask-detection-v7lf1/thief-detection-6hqgl/dataset/2
+  version: 2
+  workspace: face-mask-detection-v7lf1
+test: ../test/images
+train: ../train/images
+val: ../valid/images

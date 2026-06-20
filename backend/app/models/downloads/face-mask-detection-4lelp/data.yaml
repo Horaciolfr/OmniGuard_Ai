@@ -1,0 +1,15 @@
+names:
+- face_half_mask
+- face_mask
+- face_no_mask
+- face_with_hand
+nc: 4
+roboflow:
+  license: CC BY 4.0
+  project: face-mask-detection-4lelp
+  url: https://universe.roboflow.com/work1-7vtdf/face-mask-detection-4lelp/dataset/2
+  version: 2
+  workspace: work1-7vtdf
+test: ../test/images
+train: ../train/images
+val: ../valid/images

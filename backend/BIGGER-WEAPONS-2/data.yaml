@@ -1,0 +1,13 @@
+names:
+- gun
+- melee
+nc: 2
+roboflow:
+  license: CC BY 4.0
+  project: bigger-weapons
+  url: https://universe.roboflow.com/neuros/bigger-weapons/dataset/2
+  version: 2
+  workspace: neuros
+test: ../test/images
+train: ../train/images
+val: ../valid/images

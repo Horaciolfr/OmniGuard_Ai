@@ -1,0 +1,21 @@
+names:
+- 0_rostro_limpio
+- 1_mascarilla
+- 2_gafas
+- 3_gorra
+- 4_capucha
+- 5_casco
+- 6_pasamontana
+- 7_mano_rostro
+- 8_ropa_rostro
+- 9_cabeza_baja
+nc: 10
+roboflow:
+  license: CC BY 4.0
+  project: 2026-e8z7a
+  url: https://universe.roboflow.com/sistema-p1bnl/2026-e8z7a/dataset/1
+  version: 1
+  workspace: sistema-p1bnl
+test: ../test/images
+train: ../train/images
+val: ../valid/images

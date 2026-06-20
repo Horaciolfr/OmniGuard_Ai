@@ -1,0 +1,17 @@
+names:
+- gun
+- melee
+- 0_rostro_limpio
+- 1_mascarilla
+- 2_gafas
+- 3_gorra
+- 4_capucha
+- 5_casco
+- 6_pasamontana
+- 7_mano_rostro
+- 8_ropa_rostro
+- 9_cabeza_baja
+nc: 12
+test: ../test/images
+train: ../train/images
+val: ../valid/images

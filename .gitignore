@@ -1,0 +1,37 @@
+# Entornos virtuales
+backend/venv/
+venv/
+env/
+.env
+
+# Archivos de caché y logs
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.temp/
+temp/
+
+# Base de datos local
+*.sqlite3
+*.db
+
+# Modelos pesados descartables (Si usas otros pesos como pt que no sean el best.pt, ponlos aquí)
+# yolov8n.pt
+
+# Archivos multimedia de prueba
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Datasets de entrenamiento (Ignorar para no saturar GitHub)
+backend/app/models/dataset_unificado/
+backend/ATM-Security-System-New-7/
+backend/datasets/
+backend/runs/
