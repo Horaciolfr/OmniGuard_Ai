@@ -120,7 +120,7 @@ if __name__ == "__main__":
     # Entrenamiento a máxima potencia restringiendo la VRAM a 6GB
     model.train(
         data=os.path.join(ruta_unificada, "data.yaml"), 
-        epochs=50, 
+        epochs=30, 
         imgsz=640,     
         batch=-1,      
         fraction=0.75, # Limita AutoBatch al 75% de los 8GB de VRAM = 6GB exactos

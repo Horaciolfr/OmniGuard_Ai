@@ -72,10 +72,10 @@ def generar_frames(source=0):
             else:
                 break
                 
-        # 1. Inferencia del modelo personalizado (Sensibilidad equilibrada conf=0.30)
-        resultados_custom = yolo_model(frame, conf=0.30, verbose=False)
-        # 1.5 Inferencia del modelo COCO (Sensibilidad equilibrada conf=0.30)
-        resultados_coco = yolo_coco(frame, conf=0.30, verbose=False)
+        # 1. Inferencia del modelo personalizado (Sensibilidad agudizada conf=0.20)
+        resultados_custom = yolo_model(frame, conf=0.20, verbose=False)
+        # 1.5 Inferencia del modelo COCO (Sensibilidad agudizada conf=0.20)
+        resultados_coco = yolo_coco(frame, conf=0.20, verbose=False)
         
         detecciones_actuales = []
         
@@ -89,9 +89,25 @@ def generar_frames(source=0):
                     
                     nombre_original = modelo.names[cls_id].lower()
                     
-                    # Si es COCO y detecta persona, lo ignoramos porque el custom ya lo hace mejor
-                    if es_coco and nombre_original in ["person", "human"]:
-                        continue
+                    # Filtro de precisión estricto: Listas Blancas de Seguridad
+                    if es_coco:
+                        # En COCO solo nos interesan armas, mochilas, maletas y vehículos perimetrales
+                        coco_whitelist = [
+                            "knife", "backpack", "handbag", "suitcase", "cell phone", 
+                            "baseball bat", "scissors", "car", "motorcycle", "truck", "bus", "laptop"
+                        ]
+                        if nombre_original not in coco_whitelist:
+                            continue
+                    else:
+                        # En el modelo personalizado nos aseguramos de ignorar cualquier clase basura
+                        custom_whitelist = [
+                            "mask", "face_mask", "person-with-mask", "sunglasses", 
+                            "pex5 - v4 2023-12-05 8-35pm", "hoodie", "persona_con_chaqueta", 
+                            "hat", "cap", "person", "human", "weapon", "gun", "persona_armada", "cuchillo", "machete"
+                        ]
+                        # Si el modelo personalizado detecta algo fuera de su lista, lo ignoramos
+                        if nombre_original not in custom_whitelist:
+                            continue
                         
                     traducciones = {
                         "mask": "Barbijo", "face_mask": "Barbijo", "person-with-mask": "Barbijo",
@@ -149,8 +165,8 @@ def analizar_imagen_estatica(file_path):
     if frame is None:
         return None
         
-    resultados_custom = yolo_model(frame, conf=0.30, verbose=False)
-    resultados_coco = yolo_coco(frame, conf=0.30, verbose=False)
+    resultados_custom = yolo_model(frame, conf=0.20, verbose=False)
+    resultados_coco = yolo_coco(frame, conf=0.20, verbose=False)
     
     def procesar_resultados(resultados, modelo, es_coco=False):
         if len(resultados) > 0 and resultados[0].boxes:

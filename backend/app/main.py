@@ -95,17 +95,18 @@ HTML_TEMPLATE = """
         }
 
         .nav-item {
-            padding: 12px 24px;
+            padding: 14px 20px;
             display: flex;
             align-items: center;
             gap: 12px;
             color: var(--text-muted);
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 11px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             text-transform: uppercase;
             letter-spacing: 1px;
+            word-wrap: break-word;
         }
 
         .nav-item.active {
@@ -205,14 +206,10 @@ HTML_TEMPLATE = """
         /* Video Container */
         .video-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 12px;
             flex-grow: 1;
             min-height: 0;
-        }
-
-        .video-grid.single-view {
-            grid-template-columns: 1fr;
         }
 
         .video-wrapper {
@@ -225,6 +222,23 @@ HTML_TEMPLATE = """
             align-items: center;
             justify-content: center;
             min-height: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .video-wrapper.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            border-radius: 0;
+            border: none;
+        }
+        
+        .video-wrapper.fullscreen img {
+            object-fit: contain;
         }
         
         .video-wrapper img {
@@ -247,17 +261,18 @@ HTML_TEMPLATE = """
 
         .live-badge {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.6);
+            top: 12px;
+            left: 12px;
+            background: rgba(10, 17, 22, 0.85);
             border: 1px solid var(--border-cyan);
             padding: 6px 12px;
             border-radius: 4px;
             display: flex;
             gap: 12px;
             font-family: var(--font-mono);
-            font-size: 12px;
+            font-size: 11px;
             color: white;
+            z-index: 10;
         }
         
         .rec-dot { color: var(--text-red); font-weight: bold; }
@@ -265,22 +280,35 @@ HTML_TEMPLATE = """
 
         .cam-info-bottom {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(10, 17, 22, 0.85);
+            border: 1px solid var(--border-cyan);
+            padding: 8px 12px;
+            border-radius: 6px;
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-cyan);
-            text-shadow: 0 0 5px rgba(0,229,255,0.5);
+            max-width: 45%;
+            word-wrap: break-word;
+            z-index: 10;
         }
 
         .model-info-bottom {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(10, 17, 22, 0.85);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
             text-align: right;
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
+            max-width: 45%;
+            word-wrap: break-word;
+            z-index: 10;
         }
 
         /* Bottom Status Area */
@@ -572,7 +600,6 @@ HTML_TEMPLATE = """
             </div>
             <div class="nav-menu">
                 <div class="nav-item active" onclick="setLiveCamera()">PANEL DE CONTROL (EN VIVO)</div>
-                <div class="nav-item" onclick="cambiarCamara2()">CAMBIAR FUENTE CAM 2</div>
                 <div class="nav-item" onclick="document.getElementById('fileInput').click()">ARCHIVO (SUBIR MEDIA)</div>
                 <div class="nav-item" onclick="limpiarLogs()">REGISTRO DE EVIDENCIA (LIMPIAR)</div>
                 <div class="nav-item" id="btnSound" onclick="toggleSound()">AJUSTES DEL SISTEMA (AUDIO: ON)</div>
@@ -605,32 +632,15 @@ HTML_TEMPLATE = """
             <div class="left-col">
                 <!-- Video Section -->
                 <div class="video-grid" id="main-video-grid">
-                    <div class="video-wrapper">
+                    <div class="video-wrapper" onclick="toggleFullscreen(this)">
                         <img id="feed-0" src="/media_feed?type=camera&path=0" alt="Live Feed">
                         <div class="video-overlay"></div>
                         <div class="live-badge">
                             <span class="rec-dot">EN VIVO</span>
-                            <span class="fps-txt">CAM 0</span>
+                            <span class="fps-txt">CAM 01</span>
                         </div>
                         <div class="cam-info-bottom">
                             ENTRADA PRINCIPAL SECTOR 01-A<br>
-                            <span class="clock" style="color:var(--text-main);">--:--:--</span>
-                        </div>
-                        <div class="model-info-bottom">
-                            <span style="color:white; font-weight:bold;">Motor YOLOv8 Borde</span><br>
-                            HARDWARE LOCAL ACTIVO
-                        </div>
-                    </div>
-                    
-                    <div class="video-wrapper" id="wrapper-cam-1">
-                        <img id="feed-1" src="/media_feed?type=camera&path=1" alt="Live Feed OBS">
-                        <div class="video-overlay"></div>
-                        <div class="live-badge">
-                            <span class="rec-dot">EN VIVO</span>
-                            <span class="fps-txt">CAM 1</span>
-                        </div>
-                        <div class="cam-info-bottom">
-                            CÁMARA VIRTUAL OBS<br>
                             <span class="clock" style="color:var(--text-main);">--:--:--</span>
                         </div>
                         <div class="model-info-bottom">
@@ -714,38 +724,21 @@ HTML_TEMPLATE = """
     <script>
         let soundEnabled = true;
         const synth = window.speechSynthesis;
-        let cam2Path = "1";
 
-        function cambiarCamara2() {
-            let userIn = prompt("Ingresa el ID de la Cámara 2 (Ej: 1, 2, 3) o una URL RTSP/HTTP de tu cámara IP:", cam2Path);
-            if (userIn !== null && userIn !== "") {
-                cam2Path = userIn;
-                if (document.getElementById('wrapper-cam-1').style.display !== "none") {
-                    document.getElementById('feed-1').src = "/media_feed?type=camera&path=" + encodeURIComponent(cam2Path);
-                    const camInfos = document.querySelectorAll('.cam-info-bottom');
-                    if (camInfos.length > 1) camInfos[1].innerHTML = `FUENTE SECUNDARIA: ${cam2Path}<br><span class="clock" style="color:var(--text-main);">--:--:--</span>`;
-                }
-            }
+        function toggleFullscreen(element) {
+            element.classList.toggle('fullscreen');
         }
 
         function setLiveCamera() {
-            document.getElementById('main-video-grid').className = "video-grid";
-            document.getElementById('wrapper-cam-1').style.display = "flex";
             document.getElementById('feed-0').src = "/media_feed?type=camera&path=0";
-            document.getElementById('feed-1').src = "/media_feed?type=camera&path=" + encodeURIComponent(cam2Path);
-            
             const camInfos = document.querySelectorAll('.cam-info-bottom');
             if (camInfos.length > 0) camInfos[0].innerHTML = `ENTRADA PRINCIPAL SECTOR 01-A<br><span class="clock" style="color:var(--text-main);">--:--:--</span>`;
-            if (camInfos.length > 1) camInfos[1].innerHTML = `FUENTE SECUNDARIA: ${cam2Path}<br><span class="clock" style="color:var(--text-main);">--:--:--</span>`;
         }
 
         async function uploadAndPlay(event) {
             const file = event.target.files[0];
             if (!file) return;
             
-            document.getElementById('main-video-grid').className = "video-grid single-view";
-            document.getElementById('wrapper-cam-1').style.display = "none";
-
             const camInfos = document.querySelectorAll('.cam-info-bottom');
             if (camInfos.length > 0) camInfos[0].innerHTML = `SISTEMA SUBIENDO...<br><span class="clock" style="color:var(--text-main);">--:--:--</span>`;
 
@@ -773,8 +766,13 @@ HTML_TEMPLATE = """
             document.getElementById('btnSound').style.color = soundEnabled ? "var(--text-cyan)" : "var(--text-muted)";
         }
 
-        function limpiarLogs() {
+        async function limpiarLogs() {
             document.getElementById('logBox').innerHTML = "";
+            try {
+                await fetch('/api/logs', { method: 'DELETE' });
+            } catch (e) {
+                console.error("Error limpiando logs en servidor:", e);
+            }
         }
 
         // Reloj
@@ -950,9 +948,13 @@ async def media_feed(type: str = Query("camera"), path: str = Query("")):
     elif type == "video" and path:
         return StreamingResponse(vs.generar_frames(source=path), media_type="multipart/x-mixed-replace; boundary=frame")
     else:
-        cam_source = 0
-        if path.isdigit():
-            cam_source = int(path)
+        if path:
+            if path.isdigit():
+                cam_source = int(path)
+            else:
+                cam_source = path
+        else:
+            cam_source = 0
         return StreamingResponse(vs.generar_frames(source=cam_source), media_type="multipart/x-mixed-replace; boundary=frame")
 
 @app.post("/api/upload")
@@ -972,6 +974,11 @@ async def upload_file(file: UploadFile = File(...)):
 @app.get("/api/logs")
 async def get_logs():
     return JSONResponse(content=vs.registro_eventos)
+
+@app.delete("/api/logs")
+async def clear_logs():
+    vs.registro_eventos.clear()
+    return JSONResponse(content={"status": "cleared"})
 
 import ollama
 from fastapi import HTTPException
